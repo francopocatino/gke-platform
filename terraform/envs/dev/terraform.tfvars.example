@@ -1,0 +1,7 @@
+project_id = "your-project-id"
+region     = "us-central1"
+
+# Your public IP, so kubectl can reach the control plane
+authorized_networks = [
+  { cidr = "203.0.113.10/32", name = "home" },
+]
