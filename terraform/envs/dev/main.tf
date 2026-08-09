@@ -8,6 +8,7 @@ module "network" {
 module "gke" {
   source = "../../modules/gke"
 
+  project_id          = var.project_id
   cluster_name        = "platform-dev"
   region              = var.region
   env                 = "dev"
@@ -26,6 +27,7 @@ module "github_wif" {
 }
 
 resource "google_artifact_registry_repository" "images" {
+  #checkov:skip=CKV_GCP_84:Google-managed encryption is fine here; CMEK adds a KMS dependency with no benefit for this project
   repository_id = "platform"
   location      = var.region
   format        = "DOCKER"

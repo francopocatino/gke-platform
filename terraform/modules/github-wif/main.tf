@@ -4,6 +4,7 @@ resource "google_iam_workload_identity_pool" "github" {
 }
 
 resource "google_iam_workload_identity_pool_provider" "github" {
+  #checkov:skip=CKV_GCP_125:attribute_condition restricts to a single repository; checkov cannot evaluate the interpolation
   workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
   workload_identity_pool_provider_id = var.provider_id
   display_name                       = "GitHub OIDC"

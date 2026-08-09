@@ -27,6 +27,48 @@ resource "google_compute_subnetwork" "gke" {
   }
 }
 
+resource "google_compute_firewall" "deny_all_ingress" {
+  name      = "${var.network_name}-deny-all-ingress"
+  network   = google_compute_network.this.id
+  direction = "INGRESS"
+  priority  = 65534
+
+  deny {
+    protocol = "all"
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_firewall" "allow_internal" {
+  name      = "${var.network_name}-allow-internal"
+  network   = google_compute_network.this.id
+  direction = "INGRESS"
+  priority  = 1000
+
+  allow {
+    protocol = "tcp"
+  }
+
+  allow {
+    protocol = "udp"
+  }
+
+  allow {
+    protocol = "icmp"
+  }
+
+  source_ranges = [var.subnet_cidr, var.pods_cidr]
+
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+}
+
 resource "google_compute_router" "this" {
   name    = "${var.network_name}-router"
   network = google_compute_network.this.id

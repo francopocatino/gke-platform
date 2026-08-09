@@ -1,4 +1,8 @@
 resource "google_container_cluster" "this" {
+  #checkov:skip=CKV_GCP_61:Intranode visibility is managed by Autopilot; VPC flow logs are enabled on the subnet
+  #checkov:skip=CKV_GCP_12:Autopilot runs Dataplane V2, which enforces network policies by default
+  #checkov:skip=CKV_GCP_65:Google Groups RBAC needs a Workspace domain, not available on a personal project
+  #checkov:skip=CKV_GCP_69:Autopilot always runs the GKE metadata server; node_config is not settable
   name     = var.cluster_name
   location = var.region
 
@@ -30,6 +34,20 @@ resource "google_container_cluster" "this" {
 
   release_channel {
     channel = "REGULAR"
+  }
+
+  master_auth {
+    client_certificate_config {
+      issue_client_certificate = false
+    }
+  }
+
+  workload_identity_config {
+    workload_pool = "${var.project_id}.svc.id.goog"
+  }
+
+  binary_authorization {
+    evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
   }
 
   deletion_protection = false
