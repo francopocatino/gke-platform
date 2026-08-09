@@ -23,6 +23,7 @@ spec:
                 - kube-system
                 - kyverno
                 - argocd
+                - monitoring
                 - local-path-storage
       validate:
         message: "Images must carry an explicit tag"
@@ -43,6 +44,7 @@ spec:
                 - kube-system
                 - kyverno
                 - argocd
+                - monitoring
                 - local-path-storage
       validate:
         message: "Images must not use the latest tag"
