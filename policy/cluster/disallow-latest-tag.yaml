@@ -21,6 +21,9 @@ spec:
           - resources:
               namespaces:
                 - kube-system
+                - kyverno
+                - argocd
+                - local-path-storage
       validate:
         message: "Images must carry an explicit tag"
         pattern:
@@ -38,6 +41,9 @@ spec:
           - resources:
               namespaces:
                 - kube-system
+                - kyverno
+                - argocd
+                - local-path-storage
       validate:
         message: "Images must not use the latest tag"
         pattern:
