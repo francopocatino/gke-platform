@@ -46,7 +46,9 @@ The script prints how to reach the Argo CD UI and the service. Try deploying a p
 Monitoring comes up with the rest: kube-prometheus-stack managed by Argo CD, hello-api scraped through a ServiceMonitor, a golden-signals dashboard provisioned from a ConfigMap that lives next to the service, and three alerts checked with promtool in CI. Grafana:
 
 ```bash
-kubectl -n monitoring port-forward svc/monitoring-grafana 3000:80   # admin / prom-operator
+kubectl -n monitoring port-forward svc/monitoring-grafana 3000:80
+# user admin, password:
+kubectl -n monitoring get secret monitoring-grafana -o jsonpath='{.data.admin-password}' | base64 -d
 ```
 
 ## Running it on GCP
