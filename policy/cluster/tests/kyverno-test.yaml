@@ -1,0 +1,47 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: cluster-policies
+policies:
+  - ../require-requests-limits.yaml
+  - ../disallow-latest-tag.yaml
+  - ../disallow-privileged.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: require-requests-limits
+    rule: validate-resources
+    kind: Pod
+    resources:
+      - good-pod
+    result: pass
+  - policy: require-requests-limits
+    rule: validate-resources
+    kind: Pod
+    resources:
+      - no-resources-pod
+    result: fail
+  - policy: disallow-latest-tag
+    rule: disallow-latest
+    kind: Pod
+    resources:
+      - latest-tag-pod
+    result: fail
+  - policy: disallow-latest-tag
+    rule: disallow-latest
+    kind: Pod
+    resources:
+      - good-pod
+    result: pass
+  - policy: disallow-privileged
+    rule: deny-privileged
+    kind: Pod
+    resources:
+      - privileged-pod
+    result: fail
+  - policy: disallow-privileged
+    rule: deny-privileged
+    kind: Pod
+    resources:
+      - good-pod
+    result: pass
