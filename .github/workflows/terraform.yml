@@ -1,0 +1,68 @@
+name: Terraform
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'terraform/**'
+      - 'policy/terraform/**'
+      - '.github/workflows/terraform.yml'
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - 'policy/terraform/**'
+      - '.github/workflows/terraform.yml'
+
+permissions:
+  contents: read
+
+env:
+  CONFTEST_VERSION: "0.56.0"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Format check
+        run: terraform fmt -check -recursive terraform/
+
+      - name: Validate
+        run: |
+          cd terraform/envs/dev
+          terraform init -backend=false -input=false
+          terraform validate
+
+  checkov:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: terraform
+          quiet: true
+
+  conftest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install conftest
+        run: |
+          curl -sSL "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" | tar xz conftest
+          sudo mv conftest /usr/local/bin/
+
+      - name: Policy unit tests
+        run: conftest verify --policy policy/terraform
+
+      - name: Check terraform against policies
+        run: conftest test --parser hcl2 --policy policy/terraform --ignore='.terraform' terraform/
