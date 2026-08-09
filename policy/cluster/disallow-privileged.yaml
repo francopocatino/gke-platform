@@ -22,6 +22,9 @@ spec:
           - resources:
               namespaces:
                 - kube-system
+                - kyverno
+                - argocd
+                - local-path-storage
       validate:
         message: "Privileged containers are not allowed"
         pattern:
