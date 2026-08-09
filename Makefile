@@ -1,4 +1,4 @@
-.PHONY: fmt validate policy test render
+.PHONY: fmt validate policy test render local local-down
 
 fmt:
 	terraform fmt -recursive terraform/
@@ -17,3 +17,9 @@ test:
 
 render:
 	kustomize build gitops/hello-api/overlays/dev
+
+local:
+	./scripts/local-up.sh
+
+local-down:
+	kind delete cluster --name gke-platform
