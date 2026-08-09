@@ -24,6 +24,7 @@ spec:
                 - kube-system
                 - kyverno
                 - argocd
+                - monitoring
                 - local-path-storage
       validate:
         message: "Privileged containers are not allowed"

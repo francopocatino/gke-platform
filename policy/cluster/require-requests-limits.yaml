@@ -24,6 +24,7 @@ spec:
                 - kube-system
                 - kyverno
                 - argocd
+                - monitoring
                 - local-path-storage
       validate:
         message: "CPU and memory requests and a memory limit are required"
