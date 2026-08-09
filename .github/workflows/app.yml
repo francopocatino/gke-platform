@@ -1,0 +1,37 @@
+name: hello-api
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'services/hello-api/**'
+      - '.github/workflows/app.yml'
+  pull_request:
+    paths:
+      - 'services/hello-api/**'
+      - '.github/workflows/app.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Run tests
+        run: |
+          cd services/hello-api/app
+          mvn -B test
+
+      - name: Build image
+        run: docker build -t hello-api:${{ github.sha }} services/hello-api

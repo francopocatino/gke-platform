@@ -1,0 +1,60 @@
+name: Cluster policies
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'policy/cluster/**'
+      - 'gitops/**'
+      - '.github/workflows/policy.yml'
+  pull_request:
+    paths:
+      - 'policy/cluster/**'
+      - 'gitops/**'
+      - '.github/workflows/policy.yml'
+
+permissions:
+  contents: read
+
+env:
+  KYVERNO_VERSION: "1.13.4"
+  KUBECONFORM_VERSION: "0.6.7"
+
+jobs:
+  kyverno:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install kyverno CLI
+        run: |
+          curl -sSL "https://github.com/kyverno/kyverno/releases/download/v${KYVERNO_VERSION}/kyverno-cli_v${KYVERNO_VERSION}_linux_x86_64.tar.gz" | tar xz kyverno
+          sudo mv kyverno /usr/local/bin/
+
+      - name: Policy tests
+        run: kyverno test policy/cluster/tests
+
+      - name: Apply policies to rendered manifests
+        run: |
+          kubectl kustomize gitops/hello-api/overlays/dev > rendered.yaml
+          kyverno apply policy/cluster/*.yaml --resource rendered.yaml
+
+  manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -sSL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | tar xz kubeconform
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate rendered manifests
+        run: |
+          kubectl kustomize gitops/hello-api/overlays/dev > rendered.yaml
+          kubeconform -strict -summary rendered.yaml
+
+      - name: Validate argocd applications
+        run: kubeconform -ignore-missing-schemas -strict -summary gitops/argocd/root-app.yaml gitops/argocd/apps/*.yaml
