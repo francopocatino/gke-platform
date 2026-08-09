@@ -7,7 +7,8 @@ cd "$(dirname "$0")/.."
 
 CLUSTER=gke-platform
 KYVERNO_VERSION=1.13.4
-ARGOCD_VERSION=2.13.3
+# 3.x needed: 2.x can't diff against the newer kube API kind ships
+ARGOCD_VERSION=3.2.0
 
 if ! kind get clusters 2>/dev/null | grep -qx "$CLUSTER"; then
   kind create cluster --name "$CLUSTER" --wait 120s
