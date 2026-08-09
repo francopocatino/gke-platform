@@ -1,5 +1,7 @@
 package main
 
+import rego.v1
+
 deny contains msg if {
 	cluster := input.resource.google_container_cluster[name][_]
 	not cluster.enable_autopilot == true

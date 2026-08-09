@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 env:
-  CONFTEST_VERSION: "0.56.0"
+  CONFTEST_VERSION: "0.62.0"
 
 jobs:
   validate:
