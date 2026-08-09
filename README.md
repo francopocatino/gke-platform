@@ -23,7 +23,7 @@ flowchart LR
 | `terraform/envs/dev/` | The one live environment |
 | `policy/terraform/` | Conftest rules with their own unit tests (`conftest verify`) |
 | `policy/cluster/` | Kyverno policies plus `kyverno test` fixtures |
-| `gitops/` | Argo CD app-of-apps and kustomize overlays |
+| `gitops/` | Argo CD app-of-apps, kustomize overlays, monitoring stack |
 | `services/hello-api/` | Spring Boot demo workload |
 
 ## How CI works
@@ -42,6 +42,12 @@ make local-down   # deletes it
 ```
 
 The script prints how to reach the Argo CD UI and the service. Try deploying a pod with no resource requests to watch Kyverno reject it.
+
+Monitoring comes up with the rest: kube-prometheus-stack managed by Argo CD, hello-api scraped through a ServiceMonitor, a golden-signals dashboard provisioned from a ConfigMap that lives next to the service, and three alerts checked with promtool in CI. Grafana:
+
+```bash
+kubectl -n monitoring port-forward svc/monitoring-grafana 3000:80   # admin / prom-operator
+```
 
 ## Running it on GCP
 
@@ -63,4 +69,3 @@ kubectl apply -f gitops/argocd/root-app.yaml
 
 - Preview environments per PR via an Argo CD ApplicationSet
 - Image build and push to Artifact Registry from CI on tags
-- Managed Prometheus dashboards for hello-api
