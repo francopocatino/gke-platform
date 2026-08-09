@@ -1,5 +1,7 @@
 package main
 
+import rego.v1
+
 deny contains msg if {
 	provider := input.resource.google_iam_workload_identity_pool_provider[name][_]
 	not provider.attribute_condition

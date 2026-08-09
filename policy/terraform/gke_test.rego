@@ -1,5 +1,7 @@
 package main
 
+import rego.v1
+
 test_autopilot_required if {
 	deny["GKE cluster \"bad\" must use Autopilot"] with input as {"resource": {"google_container_cluster": {"bad": [{}]}}}
 }
