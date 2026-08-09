@@ -19,6 +19,8 @@ permissions:
 env:
   KYVERNO_VERSION: "1.13.4"
   KUBECONFORM_VERSION: "0.6.7"
+  PROMETHEUS_VERSION: "3.5.0"
+  CRD_SCHEMAS: "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"
 
 jobs:
   kyverno:
@@ -54,7 +56,13 @@ jobs:
       - name: Validate rendered manifests
         run: |
           kubectl kustomize gitops/hello-api/overlays/dev > rendered.yaml
-          kubeconform -strict -summary rendered.yaml
+          kubeconform -strict -summary -schema-location default -schema-location "${CRD_SCHEMAS}" rendered.yaml
 
       - name: Validate argocd applications
         run: kubeconform -ignore-missing-schemas -strict -summary gitops/argocd/root-app.yaml gitops/argocd/apps/*.yaml
+
+      - name: Check alert rules
+        run: |
+          curl -sSL "https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz" | tar xz --strip-components=1 "prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool"
+          yq '{"groups": .spec.groups}' gitops/hello-api/base/prometheusrule.yaml > rules.yaml
+          ./promtool check rules rules.yaml
