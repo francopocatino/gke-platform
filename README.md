@@ -32,7 +32,18 @@ No GCP credentials anywhere in CI. Every check is static: checkov and conftest r
 
 Deploys authenticate through Workload Identity Federation with an `attribute_condition` pinned to this repository. There is a conftest rule that fails the build if that condition ever disappears, because without it any GitHub repo can impersonate the deployer.
 
-## Running it
+## Local demo, no GCP needed
+
+The whole platform runs on a local kind cluster: Kyverno enforcing the same policies, Argo CD syncing this repo from GitHub, hello-api built from source.
+
+```bash
+make local        # creates the cluster, installs everything, bootstraps Argo CD
+make local-down   # deletes it
+```
+
+The script prints how to reach the Argo CD UI and the service. Try deploying a pod with no resource requests to watch Kyverno reject it.
+
+## Running it on GCP
 
 ```bash
 make validate policy test    # everything CI runs, locally
